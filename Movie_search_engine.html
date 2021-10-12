@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <style>
+    input {
+      width: 200px;
+    }
+
+    #movies {
+      height: 200px;
+      width: 206px;
+      border: 1px solid black;
+      overflow: scroll;
+      border-top: none;
+    }
+  </style>
+  <body>
+    <input
+      oninput="debounce(main,1000)"
+      type="text"
+      id="movie"
+      placeholder="Enter movie name"
+    />
+
+    <div id="movies"></div>
+  </body>
+</html>
+
+<script>
+  var timerID;
+  let movie_div = document.getElementById("movies");
+
+
+
+  async function searchMovie(movie_name) {
+    try {
+      let res = await fetch(
+        `https://www.omdbapi.com/?apikey=207236e2&s=${movie_name}&plot=full`
+      );
+      var data = await res.json();
+      return data
+    } catch (e) {
+      console.log("e", e);
+    }
+    console.log(data);
+  }
+  // searchMovie("inception")
+
+
+
+  function appendMovies(movies) {
+    if (movies === undefined) {
+      return false;
+    }name
+    movie_div.innerHTML = null;
+    movies.forEach(function (movie) {
+      let p = document.createElement("p");
+      p.innerText = movie.Title;
+
+      movie_div.append(p);
+    });
+  }
+    async function main() {
+      let name = document.getElementById("movie").value;
+
+      if (name.length < 3) {
+        return false;
+      }
+
+      let res = await searchMovie(name);
+      let m = res.Search
+      appendMovies(m);
+      console.log('res',res);
+    }
+  
+  function debounce(func, delay) {
+    if (timerID){
+      clearTimeout(timerID);
+    }
+    timerID = setTimeout(function () {
+      func();
+    }, delay);
+  }
+
+  /*
+https://apilist.fun/
+https://www.themoviedb.org/documentation/api
+*/
+</script>
