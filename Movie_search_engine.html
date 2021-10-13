@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>MovieFlix</title>
   </head>
 
   <style>
@@ -19,17 +19,17 @@
       overflow-y: scroll;
       border-top: none;
       display: none;
-      background: white;
+      background: transparent;
     }
     body {
-      width : 60%;
+      width : 90%;
       /* border: 1px solid black; */
       margin: 0 auto;
-        background-image : url('https://i.pinimg.com/736x/f9/27/c0/f927c037eee512277b5d4df5721ee55d.jpg');
+        background: rgba(0, 0, 0, 0.8);
         background-size: 100%;
         font-family: Arial, Helvetica, sans-serif;
          font-style: italic;
-      
+      color : white;
     }
     h1 {
       text-align: center;
@@ -43,17 +43,38 @@
     #movie_details {
       margin-top: 20px;
       display: flex;
+      margin-bottom : 10px;
     }
     #movie_details > img {
-      width: 40%;
-      height: 350px;
+      width: 20%;
+      height: 200px;
       margin-right: 10px;
+      
+      border-radius: 15px;
     }
     #movie_details > div {
       font-size : 18px;
     }
     #movie_details > div > div {
-      margin: 20px 5px;
+      /* margin: 20px 5px; */
+      margin-bottom: 20px;
+      /* border: 1px solid white; */
+    }
+    #parent_div {
+      display : grid;
+      grid-template-columns: repeat(5,19%);
+      grid-gap: 1%;
+    }
+    #parent_div > div {
+      margin-bottom: 20px;
+    }
+    .poster_img {
+      width: 100%;
+      height: 230px;
+      border-radius: 10px;
+    }
+    #headings {
+      text-align: left;
     }
   </style>
   <body>
@@ -67,6 +88,8 @@
 
     <div id="movies"></div>
     <div id="movie_details"></div>
+    <h1 id = 'headings'>Trendings</h1>
+    <div id="parent_div"></div>
   </body>
 </html>
 
@@ -117,11 +140,12 @@
   }
 
   function debounce(func, delay) {
-    movie_div.style.display = "block";
     if (timerID) {
       clearTimeout(timerID);
     }
     timerID = setTimeout(function () {
+
+    movie_div.style.display = "block";
       func();
     }, delay);
   }
@@ -168,6 +192,37 @@
 
     content_div.append(img,name,cast,Genre,Runtime,imdb_ratings)
     parent.append(img,content_div);
+
+  }
+// for daily trending movies
+
+
+  async function showTrending(){
+    let res = await fetch('https://api.themoviedb.org/3/trending/movie/day?api_key=53fc3d25747424da0529c1bb21712383')
+
+    let {results} = await res.json();
+    console.log(results);
+    appendTrending(results)
+  }
+
+  showTrending()
+
+  function appendTrending(trending_movies){
+    let parent_div = document.getElementById('parent_div');
+    trending_movies.forEach(({original_title,poster_path}) => {
+
+      let div = document.createElement('div');
+
+      let name = document.createElement('div')
+      name.innerHTML = original_title
+
+      let poster_img = document.createElement('img')
+      poster_img.src = `https://image.tmdb.org/t/p/w500${poster_path}`
+      poster_img.setAttribute('class','poster_img')
+
+      div.append(poster_img,name)
+      parent_div.append(div)
+    })
 
   }
 
