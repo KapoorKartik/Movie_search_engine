@@ -15,12 +15,49 @@
     #movies {
       height: 200px;
       width: 206px;
-      border: 1px solid black;
-      overflow: scroll;
+      border: 1px solid rgb(133, 130, 130);
+      overflow-y: scroll;
       border-top: none;
+      display: none;
+      background: white;
+    }
+    body {
+      width : 60%;
+      /* border: 1px solid black; */
+      margin: 0 auto;
+        background-image : url('https://i.pinimg.com/736x/f9/27/c0/f927c037eee512277b5d4df5721ee55d.jpg');
+        background-size: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+         font-style: italic;
+      
+    }
+    h1 {
+      text-align: center;
+    }
+    #movie {
+      /* background: skyblue; */
+      height: 25px;
+      border-radius: 12.5px;
+      width: 100%;
+    }
+    #movie_details {
+      margin-top: 20px;
+      display: flex;
+    }
+    #movie_details > img {
+      width: 40%;
+      height: 350px;
+      margin-right: 10px;
+    }
+    #movie_details > div {
+      font-size : 18px;
+    }
+    #movie_details > div > div {
+      margin: 20px 5px;
     }
   </style>
   <body>
+    <h1>MovieFlix</h1>
     <input
       oninput="debounce(main,1000)"
       type="text"
@@ -29,6 +66,7 @@
     />
 
     <div id="movies"></div>
+    <div id="movie_details"></div>
   </body>
 </html>
 
@@ -36,15 +74,13 @@
   var timerID;
   let movie_div = document.getElementById("movies");
 
-
-
   async function searchMovie(movie_name) {
     try {
       let res = await fetch(
-        `https://www.omdbapi.com/?apikey=207236e2&s=${movie_name}&plot=full`
+        `https://www.omdbapi.com/?apikey=207236e2&s=${movie_name}`
       );
       var data = await res.json();
-      return data
+      return data;
     } catch (e) {
       console.log("e", e);
     }
@@ -52,35 +88,37 @@
   }
   // searchMovie("inception")
 
-
-
   function appendMovies(movies) {
     if (movies === undefined) {
       return false;
-    }name
+    }
+    name;
     movie_div.innerHTML = null;
     movies.forEach(function (movie) {
-      let p = document.createElement("p");
+      var p = document.createElement("p");
       p.innerText = movie.Title;
-
       movie_div.append(p);
+      p.onclick = function () {
+        showDetails(movie);
+      };
     });
   }
-    async function main() {
-      let name = document.getElementById("movie").value;
+  async function main() {
+    let name = document.getElementById("movie").value;
 
-      if (name.length < 3) {
-        return false;
-      }
-
-      let res = await searchMovie(name);
-      let m = res.Search
-      appendMovies(m);
-      console.log('res',res);
+    if (name.length < 3) {
+      return false;
     }
-  
+
+    let res = await searchMovie(name);
+    let m = res.Search;
+    appendMovies(m);
+    console.log("res", res);
+  }
+
   function debounce(func, delay) {
-    if (timerID){
+    movie_div.style.display = "block";
+    if (timerID) {
       clearTimeout(timerID);
     }
     timerID = setTimeout(function () {
@@ -88,7 +126,87 @@
     }, delay);
   }
 
+  let parent = document.getElementById("movie_details");
+
+  async function showDetails(movie) {
+    parent.innerHTML = null;
+
+    console.log(movie);
+    movie_div.style.display = "none";
+    document.getElementById("movie").value = "";
+
+    let content_div =  document.createElement("div");
+
+    let name = document.createElement("div");
+    name.innerHTML =  '<strong>Title : </strong>' + movie.Title;
+
+    let img = document.createElement("img");
+    img.src = movie.Poster;
+
+    // create this to extract ratings and in future if needed all details related to single movie are present in below 'x'
+
+    async function imdb(m) {
+      let res2 = await fetch(`https://www.omdbapi.com/?apikey=207236e2&t=${m}`);
+      let ratings = await res2.json();
+      return ratings;
+    }
+    //movie.title = movie,name,imdb_ratings name enter using onclick
+    let x = await imdb(movie.Title);
+
+    let imdb_ratings = document.createElement("div");
+    imdb_ratings.innerHTML = '<strong>IMDb Ratings : </strong>' +  x.imdbRating;
+    console.log(x);
+
+    let cast = document.createElement("div");
+    cast.innerHTML = '<strong>Cast :</strong>' +  x.Actors
+
+    let Genre = document.createElement("div");
+    Genre.innerHTML = '<strong>Genre : </strong>' +  x.Genre
+
+    let Runtime = document.createElement("div");
+    Runtime.innerHTML = '<strong>Runtime : </strong>' +  x.Runtime
+
+    content_div.append(img,name,cast,Genre,Runtime,imdb_ratings)
+    parent.append(img,content_div);
+
+  }
+
   /*
+  details inside let x in form of obj is
+  Actors: "Robert Downey Jr., Gwyneth Paltrow, Terrence Howard"
+Awards: "Nominated for 2 Oscars. 21 wins & 73 nominations total"
+BoxOffice: "$319,034,126"
+Country: "United States, Canada"
+DVD: "30 Sep 2008"
+Director: "Jon Favreau"
+Genre: "Action, Adventure, Sci-Fi"
+Language: "English, Persian, Urdu, Arabic, Kurdish, Hindi, Hungarian"
+Metascore: "79"
+Plot: "After being held captive in an Afghan cave, billionaire engineer Tony Stark creates a unique weaponized suit of armor to fight evil."
+Poster: "https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_SX300.jpg"
+Production: "N/A"
+Rated: "PG-13"
+Ratings: (3) [{…}, {…}, {…}]
+Released: "02 May 2008"
+Response: "True"
+Runtime: "126 min"
+Title: "Iron Man"
+Type: "movie"
+Website: "N/A"
+Writer: "Mark Fergus, Hawk Ostby, Art Marcum"
+Year: "2008"
+imdbID: "tt0371746"
+imdbRating: "7.9"
+imdbVotes: "982,983"
+
+
+
+  Poster: "https://m.media-amazon.com/images/M/MV5BMjM2NTQ5Mzc2M15BMl5BanBnXkFtZTgwNTcxMDI2NTE@._V1_SX300.jpg"
+Title: "Ant-Man"
+Type: "movie"
+Year: "2015"
+imdbID: "tt0478970"
+
 https://apilist.fun/
 https://www.themoviedb.org/documentation/api
 */
